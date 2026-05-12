@@ -199,7 +199,7 @@ export function LoginPage() {
           </div>
 
           {/* Google Login Button */}
-          <div className="mt-2">
+          <div className="mt-2 w-full flex justify-center">
             <GoogleLogin
               onSuccess={async (credentialResponse) => {
                 try {
