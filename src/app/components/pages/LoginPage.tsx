@@ -225,11 +225,11 @@ export function LoginPage() {
                 alert("Google Login Failed");
               }}
               type='icon'
-              {/* text='signin_with'
-              logo_alignment='center'
-              shape='pill'
+              auto_select={false}
+              text='signin_with'
+              shape='circle'
               size='large'
-              width='100%' */}
+              theme='outline'
             />
           </div>
 
