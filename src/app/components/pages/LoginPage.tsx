@@ -224,9 +224,11 @@ export function LoginPage() {
               onError={() => {
                 alert("Google Login Failed");
               }}
-              text='continue_with'
+              text='signin_with'
               logo_alignment='center'
               shape='pill'
+              size='large'
+              width='100%'
             />
           </div>
 
