@@ -50,7 +50,9 @@ export function DashboardLayout() {
   ];
 
   const closeSidebar = () => setIsSidebarOpen(false);
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return <div className="text-center py-10">Loading...</div>;
+  }
   if (!user) return null;
 
   return (
