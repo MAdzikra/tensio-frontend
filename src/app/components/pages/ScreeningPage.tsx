@@ -29,6 +29,7 @@ import { apiFetch } from '../../lib/api';
 export function ScreeningPage() {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 2;
@@ -99,7 +100,10 @@ export function ScreeningPage() {
   const handlePrevious = () => setCurrentStep(1);
 
   const handleSubmit = async () => {
+    if (submitting) return;
+
     try {
+      setSubmitting(true);
       const payload = {
         age: formData.age,
         gender: formData.gender,
@@ -131,6 +135,8 @@ export function ScreeningPage() {
     } catch (err: any) {
       console.error(err);
       alert(err.message);
+    } finally {
+      setSubmitting(false)
     }
   };
 
@@ -480,10 +486,17 @@ export function ScreeningPage() {
             <Button
               type="button"
               onClick={handleSubmit}
+              disabled={submitting}
               className="w-full sm:w-auto bg-gradient-to-r from-[#2563EB] to-[#3B82F6] hover:from-[#1D4ED8] hover:to-[#2563EB] px-8 h-12 rounded-xl shadow-lg shadow-blue-500/30 order-1 sm:order-2"
             >
-              Analisis Sekarang
-              <TrendingUp className="w-5 h-5 ml-2" />
+              {submitting ? (
+                <>Sedang Menganalisis...</>
+              ) : (
+                <>
+                  Analisis Sekarang
+                  <TrendingUp className="w-5 h-5 ml-2" />
+                </>
+              )}
             </Button>
           )}
         </div>

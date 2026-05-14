@@ -24,6 +24,9 @@ import { GoogleLogin } from '@react-oauth/google';
 export function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [linkingGoogle, setLinkingGoogle] = useState(false);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -44,6 +47,7 @@ export function ProfilePage() {
 
   const fetchProfile = async () => {
       try {
+        
         const data = await apiFetch('/profile');
 
         setUser(data);
@@ -67,6 +71,7 @@ export function ProfilePage() {
 
   const handleSave = async () => {
     try {
+      setSavingProfile(true);
       const res = await apiFetch('/profile', {
         method: 'PUT',
         body: JSON.stringify({
@@ -79,11 +84,12 @@ export function ProfilePage() {
       });
 
       setUser(res.data);
-
       setIsEditing(false);
       toast.success('Profil berhasil diperbarui!');
     } catch (err: any) {
       toast.error(err.message);
+    } finally {
+      setSavingProfile(false);
     }
   };
 
@@ -102,6 +108,7 @@ export function ProfilePage() {
 
   const handleGoogleLink = async (credentialResponse: any) => {
     try {
+      setLinkingGoogle(true);
       await apiFetch('/auth/google-login', {
         method: 'POST',
         body: JSON.stringify({
@@ -113,17 +120,21 @@ export function ProfilePage() {
       fetchProfile();
     } catch (err: any) {
       toast.error(err.message);
+    } finally {
+      setLinkingGoogle(false);
     }
   };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (changingPassword) return;
 
     if (newPassword !== confirmPassword) {
       return toast.error('Konfirmasi password tidak sama');
     }
 
     try {
+      setChangingPassword(true);
       if (user.auth_provider === 'google') {
         await apiFetch('/auth/set-password', {
           method: 'POST',
@@ -153,6 +164,8 @@ export function ProfilePage() {
       fetchProfile();
     } catch (err: any) {
       toast.error(err.message);
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -200,10 +213,11 @@ export function ProfilePage() {
                 <>
                   <Button
                     onClick={handleSave}
+                    disabled={savingProfile}
                     className="bg-[#2563EB] hover:bg-[#1D4ED8] rounded-xl"
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    Simpan
+                    {savingProfile ? 'Menyimpan...' : 'Simpan'}
                   </Button>
                   <Button
                     onClick={handleCancel}
@@ -420,9 +434,10 @@ export function ProfilePage() {
 
           <Button
             type="submit"
+            disabled={changingPassword}
             className="w-full h-12 bg-[#2563EB] hover:bg-[#1D4ED8] rounded-xl"
           >
-          {user.has_password ? 'Ubah Password' : 'Atur Password'}
+          {changingPassword ? 'Memproses...' : user.has_password ? 'Ubah Password' : 'Atur Password'}
           </Button>
         </form>
       </Card>
