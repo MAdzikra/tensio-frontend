@@ -57,7 +57,7 @@ export function DashboardPage() {
   ];
 
   const randomTip = healthTips[Math.floor(Math.random() * healthTips.length)];
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="text-center mt-10">Loading...</div>;
 
   return (
     <div className="space-y-8">

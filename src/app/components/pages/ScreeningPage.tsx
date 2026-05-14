@@ -135,7 +135,7 @@ export function ScreeningPage() {
   };
 
   const progress = (currentStep / totalSteps) * 100;
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="text-center mt-10">Loading...</div>;
   if(!user) return null;
 
   return (

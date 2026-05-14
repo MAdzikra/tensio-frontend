@@ -247,7 +247,7 @@ export function ProfilePage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={!isEditing}
+                disabled={true}
                 className="h-12 rounded-xl disabled:opacity-100 disabled:cursor-not-allowed"
               />
             </div>

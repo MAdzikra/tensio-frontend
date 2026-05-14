@@ -121,7 +121,7 @@ export function AdminUsersPage() {
   };
 
   if (loading) {
-    return <div className="p-10 text-center">Loading users...</div>;
+    return <div className="text-center mt-10">Loading...</div>;
   }
 
   return (

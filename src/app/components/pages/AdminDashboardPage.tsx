@@ -54,7 +54,7 @@ export function AdminDashboardPage() {
     fetchData();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="text-center mt-10">Loading...</div>;
   if (!stats) return <div>Failed to load dashboard</div>;
 
   const predictionData = stats.predictionData || [];

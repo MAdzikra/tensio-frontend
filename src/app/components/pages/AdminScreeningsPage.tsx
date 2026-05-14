@@ -91,7 +91,7 @@ export function AdminScreeningsPage() {
     setSelectedScreening(screening);
   };
 
-  if (loading) return <div className="p-10 text-center">Loading screenings...</div>;
+  if (loading) return <div className="text-center mt-10">Loading...</div>;
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
