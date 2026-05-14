@@ -114,7 +114,7 @@ export function RegisterPage() {
           </div>
 
           {/* Google Register Button */}
-          <div className="mb-2">
+          <div className="mb-2 w-full flex justify-center">
             <GoogleLogin
               onSuccess={async (credentialResponse) => {
                 try {
@@ -139,9 +139,11 @@ export function RegisterPage() {
               onError={() => {
                 alert("Google Login Failed");
               }}
-              text='continue_with'
+              type='icon'
               logo_alignment='center'
-              shape='pill'
+              shape='circle'
+              size='large'
+              theme='outline'
             />
           </div>
 
