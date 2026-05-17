@@ -176,19 +176,19 @@ export function ResultPage() {
       </div>
 
       {/* Main Result Card */}
-      <Card className={`p-10 ${getBgColor()} rounded-3xl shadow-xl`}>
+      <Card className={`p-5 md:p-10 ${getBgColor()} rounded-3xl shadow-xl overflow-hidden`}>
         <div className="text-center">
           <div className="flex justify-center mb-5">
             {getRiskIcon()}
           </div>
-          <h2 className="text-4xl font-bold text-white mb-3">
+          <h2 className="text-2xl md:text-4xl font-bold text-white mb-3 break-words">
             {getRiskLabel()}
           </h2>
           <p className="text-white/90 mb-6">
             Berdasarkan analisis machine learning terhadap data kesehatan Anda
           </p>
 
-          <div className="inline-flex items-center gap-6 bg-white/10 px-8 py-4 rounded-2xl">
+          <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6 bg-white/10 px-4 md:px-8 py-4 rounded-2xl max-w-full">
             <div className="text-center">
               <div className="text-4xl font-bold text-white">{result.systolic}</div>
               <div className="text-sm text-white/90">Sistolik</div>
