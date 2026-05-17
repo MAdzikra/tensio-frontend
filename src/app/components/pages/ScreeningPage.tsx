@@ -22,12 +22,14 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Slider } from '../ui/slider';
+import { toast } from 'sonner';
 import { Progress } from '../ui/progress';
 import { getBPCategory } from '../../lib/utils';
 import { apiFetch } from '../../lib/api';
 
 export function ScreeningPage() {
   const navigate = useNavigate();
+  const [errors, setErrors] = useState<any>({});
   const [user, setUser] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -41,14 +43,79 @@ export function ScreeningPage() {
     bmi: 22,
     systolic: 120,
     diastolic: 80,
-    saltIntake: 5,
-    sleepDuration: 7,
+    saltIntake: '',
+    sleepDuration: '',
     smokingStatus: '',
     exerciseLevel: '',
     medicationType: '',
     familyHistory: '',
     stressScore: 5,
   });
+
+  const validateStep1 = () => {
+    const newErrors: any = {};
+
+    if (!formData.age || formData.age <= 0) {
+      newErrors.age = "Usia wajib diisi";
+    }
+
+    if (!formData.gender) {
+      newErrors.gender = "Jenis kelamin wajib dipilih";
+    }
+
+    if (!formData.height || formData.height <= 0) {
+      newErrors.height = "Tinggi badan wajib diisi";
+    }
+
+    if (!formData.weight || formData.weight <= 0) {
+      newErrors.weight = "Berat badan wajib diisi";
+    }
+
+    if (!formData.systolic || formData.systolic <= 0) {
+      newErrors.systolic = "Tekanan sistolik wajib diisi";
+    }
+
+    if (!formData.diastolic || formData.diastolic <= 0) {
+      newErrors.diastolic = "Tekanan diastolik wajib diisi";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = () => {
+    const newErrors: any = {};
+
+    if (formData.saltIntake === '' || formData.saltIntake === null) {
+      newErrors.saltIntake = "Konsumsi garam wajib diisi";
+    }
+
+    if (formData.sleepDuration === '' || formData.sleepDuration === null) {
+      newErrors.sleepDuration = "Durasi tidur wajib diisi";
+    }
+
+    if (!formData.smokingStatus) {
+      newErrors.smokingStatus = "Status merokok wajib dipilih";
+    }
+
+    if (!formData.exerciseLevel) {
+      newErrors.exerciseLevel = "Aktivitas fisik wajib dipilih";
+    }
+
+    if (!formData.medicationType) {
+      newErrors.medicationType = "Jenis obat wajib dipilih";
+    }
+
+    if (!formData.familyHistory) {
+      newErrors.familyHistory = "Riwayat keluarga wajib dipilih";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+  
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -93,14 +160,25 @@ export function ScreeningPage() {
   
   const updateFormData = (field: string, value: any) => {
     setFormData((prev: any) => ({ ...prev, [field]: value }));
+    setErrors((prev: any) => ({ ...prev, [field]: '' }));
   };
   
   const bp = getBPCategory(formData.systolic, formData.diastolic);
-  const handleNext = () => setCurrentStep(2);
+  const handleNext = () => {
+    if (!validateStep1()) {
+      toast.error("Mohon lengkapi semua data pada halaman ini");
+      return;
+    }
+    setCurrentStep(2);
+  }
   const handlePrevious = () => setCurrentStep(1);
 
   const handleSubmit = async () => {
     if (submitting) return;
+    if (!validateStep2()) {
+      toast.error("Mohon lengkapi semua data sebelum submit");
+      return;
+    }
 
     try {
       setSubmitting(true);
@@ -134,7 +212,9 @@ export function ScreeningPage() {
 
     } catch (err: any) {
       console.error(err);
-      alert(err.message);
+      toast.error(
+        err.message || "Terjadi kesalahan saat melakukan analisis"
+      );
     } finally {
       setSubmitting(false)
     }
@@ -195,11 +275,21 @@ export function ScreeningPage() {
                   id="age"
                   type="number"
                   value={formData.age}
-                  onChange={(e) => updateFormData('age', parseInt(e.target.value) || 0)}
-                  className="h-12 rounded-xl"
+                  onChange={(e) => updateFormData(
+                    'age',
+                    e.target.value === ''
+                      ? ''
+                      : parseInt(e.target.value)
+                  )}
+                  className={`h-12 rounded-xl ${errors.age ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   min="1"
                   max="120"
                 />
+                {errors.age && (
+                  <p className="text-sm text-red-500">
+                    {errors.age}
+                  </p>
+                )}
                 <p className="text-xs text-gray-500">
                   {user.dateOfBirth && `Dihitung dari tanggal lahir: ${new Date(user.dateOfBirth).toLocaleDateString('id-ID')}`}
                 </p>
@@ -208,7 +298,7 @@ export function ScreeningPage() {
               <div className="space-y-2">
                 <Label htmlFor="gender">Jenis Kelamin</Label>
                 <Select value={formData.gender} onValueChange={(value) => updateFormData('gender', value)}>
-                  <SelectTrigger className="h-12 rounded-xl">
+                  <SelectTrigger className={`h-12 rounded-xl ${errors.gender ? 'border-red-500' : ''}`}>
                     <SelectValue placeholder="Pilih jenis kelamin" />
                   </SelectTrigger>
                   <SelectContent>
@@ -216,6 +306,11 @@ export function ScreeningPage() {
                     <SelectItem value="female">Perempuan</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.gender && (
+                  <p className="text-sm text-red-500">
+                    {errors.gender}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -227,11 +322,21 @@ export function ScreeningPage() {
                   id="height"
                   type="number"
                   value={formData.height}
-                  onChange={(e) => updateFormData('height', parseFloat(e.target.value) || 0)}
-                  className="h-12 rounded-xl"
+                  onChange={(e) => updateFormData(
+                    'height',
+                    e.target.value === ''
+                      ? ''
+                      : parseFloat(e.target.value)
+                  )}
+                  className={`h-12 rounded-xl ${errors.height ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   min="50"
                   max="250"
                 />
+                {errors.height && (
+                  <p className="text-sm text-red-500">
+                    {errors.height}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -243,11 +348,21 @@ export function ScreeningPage() {
                   id="weight"
                   type="number"
                   value={formData.weight}
-                  onChange={(e) => updateFormData('weight', parseFloat(e.target.value) || 0)}
-                  className="h-12 rounded-xl"
+                  onChange={(e) => updateFormData(
+                    'weight',
+                    e.target.value === ''
+                      ? ''
+                      : parseFloat(e.target.value)
+                  )}
+                  className={`h-12 rounded-xl ${errors.weight ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   min="20"
                   max="300"
                 />
+                {errors.weight && (
+                  <p className="text-sm text-red-500">
+                    {errors.weight}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2 md:col-span-2">
@@ -274,11 +389,25 @@ export function ScreeningPage() {
                   id="systolic"
                   type="number"
                   value={formData.systolic}
-                  onChange={(e) => updateFormData('systolic', parseInt(e.target.value) || 0)}
-                  className="h-12 rounded-xl"
+                  onChange={(e) => updateFormData(
+                    'systolic',
+                    e.target.value === ''
+                      ? ''
+                      : parseInt(e.target.value)
+                  )}
+                  className={`h-12 rounded-xl ${
+                    errors.systolic
+                      ? 'border-red-500 focus-visible:ring-red-500'
+                      : ''
+                  }`}
                   min="70"
                   max="250"
                 />
+                {errors.systolic && (
+                  <p className="text-sm text-red-500">
+                    {errors.systolic}
+                  </p>
+                )}
                 <p className="text-xs text-gray-500">Angka atas pada pengukuran tekanan darah</p>
               </div>
 
@@ -291,11 +420,21 @@ export function ScreeningPage() {
                   id="diastolic"
                   type="number"
                   value={formData.diastolic}
-                  onChange={(e) => updateFormData('diastolic', parseInt(e.target.value) || 0)}
-                  className="h-12 rounded-xl"
+                  onChange={(e) => updateFormData(
+                    'diastolic',
+                    e.target.value === ''
+                      ? ''
+                      : parseInt(e.target.value)
+                  )}
+                  className={`h-12 rounded-xl ${errors.diastolic ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   min="40"
                   max="150"
                 />
+                {errors.diastolic && (
+                  <p className="text-sm text-red-500">
+                    {errors.diastolic}
+                  </p>
+                )}
                 <p className="text-xs text-gray-500">Angka bawah pada pengukuran tekanan darah</p>
               </div>
 
@@ -337,12 +476,22 @@ export function ScreeningPage() {
                   id="saltIntake"
                   type="number"
                   value={formData.saltIntake}
-                  onChange={(e) => updateFormData('saltIntake', parseFloat(e.target.value) || 0)}
-                  className="h-12 rounded-xl"
+                  onChange={(e) => updateFormData(
+                    'saltIntake',
+                    e.target.value === ''
+                      ? ''
+                      : parseFloat(e.target.value)
+                  )}
+                  className={`h-12 rounded-xl ${errors.saltIntake ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   min="0"
                   max="20"
                   step="0.5"
                 />
+                {errors.saltIntake && (
+                  <p className="text-sm text-red-500">
+                    {errors.saltIntake}
+                  </p>
+                )}
                 <p className="text-xs text-gray-500">WHO merekomendasikan {'<'} 5 gram per hari</p>
               </div>
 
@@ -355,12 +504,22 @@ export function ScreeningPage() {
                   id="sleepDuration"
                   type="number"
                   value={formData.sleepDuration}
-                  onChange={(e) => updateFormData('sleepDuration', parseFloat(e.target.value) || 0)}
-                  className="h-12 rounded-xl"
+                  onChange={(e) => updateFormData(
+                    'sleepDuration',
+                    e.target.value === ''
+                      ? ''
+                      : parseFloat(e.target.value)
+                  )}
+                  className={`h-12 rounded-xl ${errors.sleepDuration ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   min="0"
                   max="24"
                   step="0.5"
                 />
+                {errors.sleepDuration && (
+                  <p className="text-sm text-red-500">
+                    {errors.sleepDuration}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -369,7 +528,7 @@ export function ScreeningPage() {
                   Status Merokok
                 </Label>
                 <Select value={formData.smokingStatus} onValueChange={(value) => updateFormData('smokingStatus', value)}>
-                  <SelectTrigger className="h-12 rounded-xl">
+                  <SelectTrigger className={`h-12 rounded-xl ${errors.smokingStatus ? 'border-red-500 focus-visible:ring-red-500' : ''}`}>
                     <SelectValue placeholder="Pilih status merokok" />
                   </SelectTrigger>
                   <SelectContent>
@@ -377,6 +536,11 @@ export function ScreeningPage() {
                     <SelectItem value="yes">Ya, Saya Merokok</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.smokingStatus && (
+                  <p className="text-sm text-red-500">
+                    {errors.smokingStatus}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -385,7 +549,7 @@ export function ScreeningPage() {
                   Tingkat Aktivitas Fisik/Olahraga
                 </Label>
                 <Select value={formData.exerciseLevel} onValueChange={(value) => updateFormData('exerciseLevel', value)}>
-                  <SelectTrigger className="h-12 rounded-xl">
+                  <SelectTrigger className={`h-12 rounded-xl ${errors.exerciseLevel ? 'border-red-500 focus-visible:ring-red-500' : ''}`}>
                     <SelectValue placeholder="Pilih tingkat aktivitas" />
                   </SelectTrigger>
                   <SelectContent>
@@ -394,6 +558,11 @@ export function ScreeningPage() {
                     <SelectItem value="high">Tinggi (4+ kali per minggu)</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.exerciseLevel && (
+                  <p className="text-sm text-red-500">
+                    {errors.exerciseLevel}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -402,7 +571,7 @@ export function ScreeningPage() {
                   Jenis Obat yang Dikonsumsi
                 </Label>
                 <Select value={formData.medicationType} onValueChange={(value) => updateFormData('medicationType', value)}>
-                  <SelectTrigger className="h-12 rounded-xl">
+                  <SelectTrigger className={`h-12 rounded-xl ${errors.medicationType ? 'border-red-500 focus-visible:ring-red-500' : ''}`}>
                     <SelectValue placeholder="Pilih jenis obat" />
                   </SelectTrigger>
                   <SelectContent>
@@ -413,6 +582,11 @@ export function ScreeningPage() {
                     <SelectItem value="other">Obat Lainnya</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.medicationType && (
+                  <p className="text-sm text-red-500">
+                    {errors.medicationType}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -421,7 +595,7 @@ export function ScreeningPage() {
                   Riwayat Hipertensi dalam Keluarga
                 </Label>
                 <Select value={formData.familyHistory} onValueChange={(value) => updateFormData('familyHistory', value)}>
-                  <SelectTrigger className="h-12 rounded-xl">
+                  <SelectTrigger className={`h-12 rounded-xl ${errors.familyHistory ? 'border-red-500 focus-visible:ring-red-500' : ''}`}>
                     <SelectValue placeholder="Pilih riwayat keluarga" />
                   </SelectTrigger>
                   <SelectContent>
@@ -429,6 +603,11 @@ export function ScreeningPage() {
                     <SelectItem value="yes">Ada (Orang tua/saudara)</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.familyHistory && (
+                  <p className="text-sm text-red-500">
+                    {errors.familyHistory}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
