@@ -31,7 +31,7 @@ Backend TENSIO menggunakan **Python Flask**.
 
 Repository:
 
-**github.com/MAdzikra/backend-tensio**
+[Backend](https://github.com/MAdzikra/backend-tensio)
 
 ## 🌐 Deployment
 
@@ -39,7 +39,7 @@ Frontend di-deploy menggunakan **Vercel**.
 
 URL:
 
-**tensio-pi.vercel.app**
+[Visit TENSIO](https://tensio-pi.vercel.app/)
 
 ## 📄 License
 
