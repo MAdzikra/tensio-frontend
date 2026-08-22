@@ -25,25 +25,13 @@ Frontend dibangun menggunakan **React** dan **Tailwind CSS**, serta berkomunikas
 * **REST API**
 * **Vercel** — deployment
 
-## 📁 Project Structure
-
-```text
-src/
-├── assets/
-├── components/
-├── pages/
-├── services/
-├── App.jsx
-└── main.jsx
-```
-
 ## 🔗 Backend
 
 Backend TENSIO menggunakan **Python Flask**.
 
 Repository:
 
-**[TENSIO Backend] github.com/MAdzikra/backend-tensio**
+**github.com/MAdzikra/backend-tensio**
 
 ## 🌐 Deployment
 
